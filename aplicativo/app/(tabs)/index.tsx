@@ -58,22 +58,27 @@ export default function HomeScreen() {
 
   const confirmarPresenca = async () => {
     try {
-      const meuIP = "172.16.0.170";
-      const response = await fetch(`http://${meuIP}:3000/checkin`, {
+      // SUBSTITUA PELO SEU LINK REAL DA RAILWAY ABAIXO:
+      const URL_RAILWAY = "https://projetovigilia-production.up.railway.app"; 
+
+      // Fazemos a chamada diretamente para o link da nuvem
+      const response = await fetch(`${URL_RAILWAY}/checkin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ senha: senha }),
       });
 
       if (response.ok) {
-        Alert.alert("Sucesso", "✅ Log registrado no PC!");
+        Alert.alert("Sucesso", "✅ Log registrado na NUVEM!");
         setSenha("");
         pararAlertas();
       } else {
         Alert.alert("Erro", "Senha incorreta.");
       }
     } catch (error) {
-      Alert.alert("Erro de Conexão", "Servidor offline.");
+      // Se cair aqui, o celular não conseguiu falar com a internet/Railway
+      Alert.alert("Erro de Conexão", "Não foi possível alcançar o servidor na nuvem.");
+      console.log(error);
     }
   };
 
