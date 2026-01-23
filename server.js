@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 // IMPORTANTE: Deixe o servidor escolher a porta da Railway automaticamente
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 app.get('/', (req, res) => {
     res.status(200).send("OK"); // Resposta curta e rápida para o sistema
@@ -29,6 +29,6 @@ app.post('/checkin', (req, res) => {
     res.status(401).send("Senha incorreta");
 });
 
-app.listen(PORT, () => {
-    console.log(`Servidor online na porta ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Servidor rodando e aceitando conexões na porta ${PORT}`);
 });
