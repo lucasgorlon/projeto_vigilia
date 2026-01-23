@@ -59,7 +59,7 @@ export default function HomeScreen() {
   const confirmarPresenca = async () => {
     try {
       // SUBSTITUA PELO SEU LINK REAL DA RAILWAY ABAIXO:
-      const URL_RAILWAY = "https://projetovigilia-production.up.railway.app"; 
+      const URL_RAILWAY = "https://projetovigilia-production.up.railway.app/"; 
 
       // Fazemos a chamada diretamente para o link da nuvem
       const response = await fetch(`${URL_RAILWAY}/checkin`, {
