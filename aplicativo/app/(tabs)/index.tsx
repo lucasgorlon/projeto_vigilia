@@ -63,10 +63,10 @@ export default function HomeScreen() {
 
       // Fazemos a chamada diretamente para o link da nuvem
       const response = await fetch(`${URL_RAILWAY}/checkin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ senha: senha }),
-      });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ senha: senha }), // O nome aqui deve ser 'senha'
+});
 
       if (response.ok) {
         Alert.alert("Sucesso", "✅ Log registrado na NUVEM!");

@@ -16,9 +16,9 @@ app.get('/', (req, res) => {
 
 app.post('/checkin', (req, res) => {
     const { senha } = req.body;
-    const horario = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    console.log("Recebido do celular:", req.body));
 
-    if (senha === "1234") { 
+    if (String(senha).trim() === "1234") { 
         const log = `Presença confirmada em: ${horario}\n`;
         fs.appendFile('log.txt', log, (err) => {
             if (err) console.error("Erro ao salvar log:", err);
