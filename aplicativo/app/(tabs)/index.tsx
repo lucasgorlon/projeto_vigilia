@@ -48,7 +48,7 @@ export default function HomeScreen() {
         [{ text: "ENTENDIDO", onPress: () => pararAlertas() }],
         { cancelable: false },
       );
-    }, 10000); // 30 minutos
+    }, 180000); // 30 minutos
 
     return () => {
       pararAlertas();
@@ -57,30 +57,30 @@ export default function HomeScreen() {
   }, [som]);
 
   const confirmarPresenca = async () => {
-    try {
-      // SUBSTITUA PELO SEU LINK REAL DA RAILWAY ABAIXO:
-      const URL_RAILWAY = "https://projetovigilia-production.up.railway.app/"; 
+  try {
+    // 1. Remova a barra / do final desta linha:
+    const URL_RAILWAY = "https://projetovigilia-production.up.railway.app"; 
 
-      // Fazemos a chamada diretamente para o link da nuvem
-      const response = await fetch(`${URL_RAILWAY}/checkin`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ senha: senha }), // O nome aqui deve ser 'senha'
-});
+    // 2. O fetch agora usa a URL limpa:
+    const response = await fetch(`${URL_RAILWAY}/checkin`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ senha: senha }), // Garanta que 'senha' é o estado do TextInput
+    });
 
-      if (response.ok) {
-        Alert.alert("Sucesso", "✅ Log registrado na NUVEM!");
-        setSenha("");
-        pararAlertas();
-      } else {
-        Alert.alert("Erro", "Senha incorreta.");
-      }
-    } catch (error) {
-      // Se cair aqui, o celular não conseguiu falar com a internet/Railway
-      Alert.alert("Erro de Conexão", "Não foi possível alcançar o servidor na nuvem.");
-      console.log(error);
+    if (response.ok) {
+      Alert.alert("Sucesso", "✅ Log registrado na NUVEM!");
+      setSenha("");
+      pararAlertas();
+    } else {
+      // Isso nos dirá se o servidor rejeitou a senha (401) ou se houve outro erro
+      const errorText = await response.text();
+      Alert.alert("Erro", `Servidor respondeu: ${errorText}`);
     }
-  };
+  } catch (error) {
+    Alert.alert("Erro de Conexão", "Não foi possível falar com a Railway. Verifique sua internet.");
+  }
+};
 
   return (
     <View style={styles.container}>

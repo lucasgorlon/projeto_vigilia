@@ -39,6 +39,50 @@ app.post('/checkin', (req, res) => {
     res.status(401).send("Senha incorreta");
 }); // Fechamento correto da rota
 
+const path = require('path');
+
+// Rota para visualizar os logs em uma tabela simples
+app.get('/ver-logs', (req, res) => {
+    const filePath = path.join(__dirname, 'log.txt');
+    
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).send("Erro ao ler o arquivo de logs ou arquivo vazio.");
+        }
+
+        // Transforma cada linha do arquivo em uma linha de tabela HTML
+        const linhas = data.split('\n').filter(linha => linha.trim() !== "");
+        const tabelaRows = linhas.map(linha => `<tr><td>${linha}</td></tr>`).join('');
+
+        const html = `
+            <html>
+                <head>
+                    <title>Logs da Vigília</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+                        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+                        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+                        th { background-color: #D32F2F; color: white; }
+                        tr:nth-child(even) { background-color: #f9f9f9; }
+                        h2 { color: #333; }
+                    </style>
+                </head>
+                <body>
+                    <h2>📋 Registros de Presença</h2>
+                    <table>
+                        <thead><tr><th>Data, Hora e Status</th></tr></thead>
+                        <tbody>${tabelaRows || "<tr><td>Nenhum registro encontrado ainda.</td></tr>"}</tbody>
+                    </table>
+                    <br>
+                    <button onclick="window.location.reload()">🔄 Atualizar</button>
+                </body>
+            </html>
+        `;
+        res.send(html);
+    });
+});
+
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
