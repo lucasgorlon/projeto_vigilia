@@ -2,6 +2,7 @@ import { Audio } from "expo-av"; // Importa o módulo de áudio
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Image,
   StyleSheet,
   Text,
   TextInput,
@@ -57,33 +58,41 @@ export default function HomeScreen() {
   }, [som]);
 
   const confirmarPresenca = async () => {
-  try {
-    // 1. Remova a barra / do final desta linha:
-    const URL_RAILWAY = "https://projetovigilia-production.up.railway.app"; 
+    try {
+      // 1. Remova a barra / do final desta linha:
+      const URL_RAILWAY = "https://projetovigilia-production.up.railway.app";
 
-    // 2. O fetch agora usa a URL limpa:
-    const response = await fetch(`${URL_RAILWAY}/checkin`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ senha: senha }), // Garanta que 'senha' é o estado do TextInput
-    });
+      // 2. O fetch agora usa a URL limpa:
+      const response = await fetch(`${URL_RAILWAY}/checkin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ senha: senha }), // Garanta que 'senha' é o estado do TextInput
+      });
 
-    if (response.ok) {
-      Alert.alert("Sucesso", "✅ Log registrado na NUVEM!");
-      setSenha("");
-      pararAlertas();
-    } else {
-      // Isso nos dirá se o servidor rejeitou a senha (401) ou se houve outro erro
-      const errorText = await response.text();
-      Alert.alert("Erro", `Servidor respondeu: ${errorText}`);
+      if (response.ok) {
+        Alert.alert("Sucesso", "✅ Log registrado na NUVEM!");
+        setSenha("");
+        pararAlertas();
+      } else {
+        // Isso nos dirá se o servidor rejeitou a senha (401) ou se houve outro erro
+        const errorText = await response.text();
+        Alert.alert("Erro", `Servidor respondeu: ${errorText}`);
+      }
+    } catch (error) {
+      Alert.alert(
+        "Erro de Conexão",
+        "Não foi possível falar com a Railway. Verifique sua internet.",
+      );
     }
-  } catch (error) {
-    Alert.alert("Erro de Conexão", "Não foi possível falar com a Railway. Verifique sua internet.");
-  }
-};
+  };
 
   return (
     <View style={styles.container}>
+      <Image
+        source={require("./logo.png")}
+        style={styles.logo}
+        resizeMode="contain"
+      />
       <Text style={styles.titulo}>🔒 VIGÍLIA ATIVA</Text>
       <TextInput
         style={styles.input}
@@ -108,6 +117,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+  },
+  logo: {
+    width: 150, // Largura da logo
+    height: 150, // Altura da logo
+    marginBottom: 30, // Espaço entre a logo e o título
   },
   titulo: { fontSize: 24, fontWeight: "bold", color: "#333", marginBottom: 20 },
   input: {
