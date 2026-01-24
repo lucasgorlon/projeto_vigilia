@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 
 app.post('/checkin', (req, res) => {
     // Definindo o horário corretamente
-    const horario = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    const horario = new Date().toLocaleString('pt-BR', { timeZone: 'America/Manaus' });
     
     // Log para depuração (corrigido sem parêntese extra)
     console.log("Dados recebidos do celular:", req.body);
