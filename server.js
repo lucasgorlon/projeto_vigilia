@@ -42,45 +42,53 @@ app.post('/checkin', (req, res) => {
 const path = require('path');
 
 // Rota para visualizar os logs em uma tabela simples
+// Rota protegida para visualizar os logs
 app.get('/ver-logs', (req, res) => {
-    const filePath = path.join(__dirname, 'log.txt');
-    
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(500).send("Erro ao ler o arquivo de logs ou arquivo vazio.");
-        }
+    // Configuração da senha "Tecnoi.22"
+    const auth = { user: 'admin', pass: 'Tecnoi.22' };
 
-        // Transforma cada linha do arquivo em uma linha de tabela HTML
-        const linhas = data.split('\n').filter(linha => linha.trim() !== "");
-        const tabelaRows = linhas.map(linha => `<tr><td>${linha}</td></tr>`).join('');
+    const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+    const [user, pass] = Buffer.from(b64auth, 'base64').toString().split(':');
 
-        const html = `
-            <html>
-                <head>
-                    <title>Logs da Vigília</title>
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <style>
-                        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-                        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-                        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-                        th { background-color: #D32F2F; color: white; }
-                        tr:nth-child(even) { background-color: #f9f9f9; }
-                        h2 { color: #333; }
-                    </style>
-                </head>
-                <body>
-                    <h2>📋 Registros de Presença</h2>
-                    <table>
-                        <thead><tr><th>Data, Hora e Status</th></tr></thead>
-                        <tbody>${tabelaRows || "<tr><td>Nenhum registro encontrado ainda.</td></tr>"}</tbody>
-                    </table>
-                    <br>
-                    <button onclick="window.location.reload()">🔄 Atualizar</button>
-                </body>
-            </html>
-        `;
-        res.send(html);
-    });
+    // Verifica se o usuário e senha estão corretos
+    if (user && pass && user === auth.user && pass === auth.pass) {
+        const filePath = path.join(__dirname, 'log.txt');
+        
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) return res.status(500).send("Erro ao ler logs ou arquivo vazio.");
+
+            const linhas = data.split('\n').filter(linha => linha.trim() !== "");
+            const tabelaRows = linhas.map(linha => `<tr><td>${linha}</td></tr>`).join('');
+
+            res.send(`
+                <html>
+                    <head>
+                        <title>Logs Restritos</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <style>
+                            body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+                            table { width: 100%; border-collapse: collapse; background: white; }
+                            th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+                            th { background-color: #333; color: white; }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>🔒 Painel de Controle - Vigília</h2>
+                        <table>
+                            <thead><tr><th>Data, Hora e Status</th></tr></thead>
+                            <tbody>${tabelaRows || "<tr><td>Sem registros.</td></tr>"}</tbody>
+                        </table>
+                        <br>
+                        <button onclick="window.location.reload()">🔄 Atualizar</button>
+                    </body>
+                </html>
+            `);
+        });
+    } else {
+        // Se a senha estiver errada ou não enviada, pede o login
+        res.set('WWW-Authenticate', 'Basic realm="Acesso Restrito"');
+        res.status(401).send('Acesso negado. Senha incorreta.');
+    }
 });
 
 app.listen(PORT, "0.0.0.0", () => {
