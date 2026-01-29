@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "fb526cf5-889b-47b5-af35-1df44d500f3d"
+      }
+    },
+    "android": {
+      "package": "com.sgorlonlucas.servidorvigilia"
+    }
+  }
+}

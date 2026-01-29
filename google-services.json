@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "516103411492",
+    "project_id": "vigilia-tecnoi-i",
+    "storage_bucket": "vigilia-tecnoi-i.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516103411492:android:0f4f616d46f7e3ba0145b1",
+        "android_client_info": {
+          "package_name": "com.sgorlonlucas.servidorvigilia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoSbliDxx6tt6lnmHHiYvQTG6hUHwhJTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
