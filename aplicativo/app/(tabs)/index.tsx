@@ -1,5 +1,8 @@
-import { Audio } from "expo-av"; // Importa o módulo de áudio
-import React, { useEffect, useState } from "react";
+import { Audio } from "expo-av";
+import Constants from "expo-constants";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -11,24 +14,79 @@ import {
   View,
 } from "react-native";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldVibrate: true,
+  }),
+});
+
 export default function HomeScreen() {
   const [senha, setSenha] = useState("");
   const [som, setSom] = useState();
+  const notificationListener = useRef();
 
-  // Função para tocar a sirene
+  useEffect(() => {
+    configurarNotificacoes();
+
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        tocarSirene();
+        Vibration.vibrate([0, 500, 500, 500], true);
+      });
+
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(
+          notificationListener.current,
+        );
+      }
+    };
+  }, []);
+
+  async function configurarNotificacoes() {
+    if (Device.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") return;
+
+      try {
+        const token = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId: Constants.expoConfig.extra.eas.projectId,
+          })
+        ).data;
+
+        console.log("TOKEN DO DISPOSITIVO:", token);
+        Alert.alert("TOKEN PARA O SERVIDOR", token);
+      } catch (error) {
+        Alert.alert("Erro ao gerar Token", error.message);
+      }
+    } else {
+      Alert.alert(
+        "Aviso",
+        "Use um dispositivo real para receber notificações.",
+      );
+    }
+  }
+
   async function tocarSirene() {
     try {
-      const { sound } = await Audio.Sound.createAsync(
-        require("./sirene.mp3"), // Agora que está na mesma pasta
-      );
+      const { sound } = await Audio.Sound.createAsync(require("./sirene.mp3"));
       setSom(sound);
       await sound.setIsLoopingAsync(true);
       await sound.playAsync();
-    } catch (error) {
-      console.log("Erro ao carregar o som:", error);
+    } catch (e) {
+      console.log("Erro ao tocar som:", e);
     }
   }
-  // Função para parar o som e a vibração
+
   async function pararAlertas() {
     Vibration.cancel();
     if (som) {
@@ -38,51 +96,25 @@ export default function HomeScreen() {
     }
   }
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      tocarSirene(); // Toca o som
-      Vibration.vibrate([0, 500, 500, 500], true); // Vibra
-
-      Alert.alert(
-        "🚨 ALERTA DE VIGÍLIA",
-        "Confirme sua presença agora!",
-        [{ text: "ENTENDIDO", onPress: () => pararAlertas() }],
-        { cancelable: false },
-      );
-    }, 180000); // 30 minutos
-
-    return () => {
-      pararAlertas();
-      clearInterval(timer);
-    };
-  }, [som]);
-
   const confirmarPresenca = async () => {
     try {
-      // 1. Remova a barra / do final desta linha:
-      const URL_RAILWAY = "https://projetovigilia-production.up.railway.app";
-
-      // 2. O fetch agora usa a URL limpa:
-      const response = await fetch(`${URL_RAILWAY}/checkin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ senha: senha }), // Garanta que 'senha' é o estado do TextInput
-      });
-
-      if (response.ok) {
-        Alert.alert("Sucesso", "✅ Log registrado na NUVEM!");
+      const res = await fetch(
+        "https://projetovigilia-production.up.railway.app/checkin",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ senha }),
+        },
+      );
+      if (res.ok) {
+        Alert.alert("Sucesso", "✅ Log registrado!");
         setSenha("");
         pararAlertas();
       } else {
-        // Isso nos dirá se o servidor rejeitou a senha (401) ou se houve outro erro
-        const errorText = await response.text();
-        Alert.alert("Erro", `Servidor respondeu: ${errorText}`);
+        Alert.alert("Erro", "Senha incorreta.");
       }
     } catch (error) {
-      Alert.alert(
-        "Erro de Conexão",
-        "Não foi possível falar com a Railway. Verifique sua internet.",
-      );
+      Alert.alert("Erro de conexão", "Verifique o servidor.");
     }
   };
 
@@ -93,7 +125,7 @@ export default function HomeScreen() {
         style={styles.logo}
         resizeMode="contain"
       />
-      <Text style={styles.titulo}>🔒 VIGÍLIA ATIVA</Text>
+      <Text style={styles.titulo}>🔒 VIGILIA CONECTADA</Text>
       <TextInput
         style={styles.input}
         secureTextEntry
@@ -109,7 +141,6 @@ export default function HomeScreen() {
   );
 }
 
-// Mantenha seus estilos (styles) como estavam
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -118,12 +149,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
-  logo: {
-    width: 150, // Largura da logo
-    height: 150, // Altura da logo
-    marginBottom: 30, // Espaço entre a logo e o título
-  },
-  titulo: { fontSize: 24, fontWeight: "bold", color: "#333", marginBottom: 20 },
+  logo: { width: 120, height: 120, marginBottom: 20 },
+  titulo: { fontSize: 22, fontWeight: "bold", color: "#333", marginBottom: 20 },
   input: {
     width: "100%",
     height: 55,
@@ -133,8 +160,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     marginBottom: 20,
-    fontSize: 18,
     textAlign: "center",
+    fontSize: 18,
   },
   botao: {
     width: "100%",
