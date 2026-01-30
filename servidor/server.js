@@ -119,7 +119,7 @@ const dispararAlertaVigilia = async () => {
         title: '🚨 VIGÍLIA TECNO I',
         body: 'CONFIRME SUA PRESENÇA AGORA!',
         priority: 'high', // Essencial para acordar o Android
-        channelId: 'default', 
+        channelId: 'alerta-v1', 
     }];
 
     try {
