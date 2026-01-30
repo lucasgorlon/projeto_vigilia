@@ -99,7 +99,7 @@ const { Expo } = require('expo-server-sdk');
 const expo = new Expo();
 
 // Importante: Substitua pelo código que aparecerá no alerta do seu celular
-const PUSH_TOKEN = "ExponentPushToken[DIGITE_SEU_TOKEN_AQUI]";
+const PUSH_TOKEN = 'ExponentPushToken[TUykvYGCdlA3txOXoe5yD_]';
 
 const dispararAlertaVigilia = async () => {
     // 1. Verificação de segurança para não travar o servidor
@@ -148,3 +148,13 @@ setInterval(() => {
         dispararAlertaVigilia();
     }
 }, 60000); // Alterado para 60000 (1 minuto) para não pular o horário exatos
+
+// Rota de teste corrigida para usar o nome certo da função
+app.get('/teste-alerta', (req, res) => {
+    console.log("Recebido comando manual de teste via navegador.");
+    
+    // Chamando a função correta que você criou acima
+    dispararAlertaVigilia(); 
+    
+    res.send("Comando de alerta enviado para a Expo! Verifique seu celular.");
+});
