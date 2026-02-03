@@ -16,6 +16,7 @@ const PUSH_TOKEN = 'ExponentPushToken[OXiCl_KBEqYATNbUnfN8XQ]';
 
 // --- ROTAS ---
 
+
 app.get('/', (req, res) => {
     res.status(200).send("OK");
 });
