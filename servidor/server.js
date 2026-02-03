@@ -69,6 +69,13 @@ const dispararAlertaVigilia = async () => {
     body: 'CONFIRME SUA PRESENÇA AGORA!',
     priority: 'high',
     channelId: 'default',
+    // Adicione estes campos extras de "força bruta":
+    _displayInForeground: true,
+    android: { // Faltavam as chaves aqui
+      priority: 'high',
+      sound: true,
+      vibrate: true,
+    }, // E a vírgula aqui
     // Adicione estas duas linhas abaixo para forçar o comportamento no Android
     mutableContent: true,
     contentAvailable: true,
