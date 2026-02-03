@@ -63,14 +63,16 @@ const dispararAlertaVigilia = async () => {
     }
 
     const messages = [{
-        to: PUSH_TOKEN,
-        sound: 'default',
-        title: '🚨 VIGÍLIA TECNO I',
-        body: 'CONFIRME SUA PRESENÇA AGORA!',
-        priority: 'high',
-        channelId: 'default', // Alinhado com o index.tsx
-    }];
-
+    to: PUSH_TOKEN,
+    sound: 'default',
+    title: '🚨 VIGÍLIA TECNO I',
+    body: 'CONFIRME SUA PRESENÇA AGORA!',
+    priority: 'high',
+    channelId: 'default',
+    // Adicione estas duas linhas abaixo para forçar o comportamento no Android
+    mutableContent: true,
+    contentAvailable: true,
+}];
     try {
         const ticketChunks = await expo.sendPushNotificationsAsync(messages);
         console.log("Resposta da Expo:", JSON.stringify(ticketChunks));
