@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
-const PUSH_TOKEN = 'ExponentPushToken[YmMDtmLpqzsuhVoUNGc_pT]';
+const PUSH_TOKEN = 'ExponentPushToken[7qHbvaGu8OR8iHxBlur57v]';
 
 // --- ROTAS ---
 
