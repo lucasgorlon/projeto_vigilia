@@ -7,6 +7,7 @@
     },
     "android": {
       "package": "com.sgorlonlucas.servidorvigilia"
-    }
+    },
+    "owner": "sgorlonlucas"
   }
 }
