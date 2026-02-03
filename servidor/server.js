@@ -58,7 +58,7 @@ app.get('/ver-logs', (req, res) => {
 
 const dispararAlertaVigilia = async () => {
     if (!Expo.isExpoPushToken(PUSH_TOKEN)) {
-        console.error(`Token inválido: ${PUSH_TOKEN}`);
+        console.error(`ERRO CRÍTICO: Token inválido registrado no servidor: ${PUSH_TOKEN}`);
         return;
     }
 
@@ -68,14 +68,22 @@ const dispararAlertaVigilia = async () => {
         title: '🚨 VIGÍLIA TECNO I',
         body: 'CONFIRME SUA PRESENÇA AGORA!',
         priority: 'high',
-        channelId: 'default', 
+        channelId: 'default', // Alinhado com o index.tsx
     }];
 
     try {
-        const ticketChunk = await expo.sendPushNotificationsAsync(messages);
-        console.log("Alerta enviado:", ticketChunk);
+        const ticketChunks = await expo.sendPushNotificationsAsync(messages);
+        console.log("Resposta da Expo:", JSON.stringify(ticketChunks));
+        
+        // Verifica se a Expo reportou erro específico de entrega
+        if (ticketChunks[0].status === 'error') {
+            console.error(`Erro detalhado: ${ticketChunks[0].message}`);
+            if (ticketChunks[0].details?.error === 'DeviceNotRegistered') {
+                console.error("ALERTA: O Token do celular expirou ou o app foi desinstalado.");
+            }
+        }
     } catch (error) {
-        console.error("Erro no envio:", error);
+        console.error("Erro na requisição para a Expo:", error);
     }
 };
 
