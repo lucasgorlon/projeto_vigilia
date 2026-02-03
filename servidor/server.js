@@ -68,7 +68,7 @@ const dispararAlertaVigilia = async () => {
         title: '🚨 VIGÍLIA TECNO I',
         body: 'CONFIRME SUA PRESENÇA AGORA!',
         priority: 'high',
-        channelId: 'alerta-v1', 
+        channelId: 'default', 
     }];
 
     try {
