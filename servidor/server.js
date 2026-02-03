@@ -88,7 +88,7 @@ app.get('/teste-alerta', (req, res) => {
 // --- AGENDAMENTO AUTOMÁTICO (CRON) ---
 
 // Dispara a cada 30 min (minutos 0 e 30) das 21h às 04h
-cron.schedule('0,40 9,22,23,0,1,2,3,4 * * *', () => {
+cron.schedule('0,45 9,22,23,0,1,2,3,4 * * *', () => {
     console.log("⏰ Cron: Disparando alerta de rotina (30 min)");
     dispararAlertaVigilia();
 }, {
