@@ -1,11 +1,11 @@
 import { Audio } from "expo-av";
-import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 
+// Configuração do Handler (como o app reage com ele aberto)
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -30,6 +31,7 @@ export default function HomeScreen() {
   useEffect(() => {
     configurarNotificacoes();
 
+    // Listener: Quando a notificação chega, dispara a sirene e vibração
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         tocarSirene();
@@ -47,6 +49,17 @@ export default function HomeScreen() {
 
   async function configurarNotificacoes() {
     if (Device.isDevice) {
+      // 1. Configura o canal primeiro
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: "#FF231F7C",
+        });
+      }
+
+      // 2. Checa permissões
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
@@ -54,24 +67,32 @@ export default function HomeScreen() {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      if (finalStatus !== "granted") return;
 
+      if (finalStatus !== "granted") {
+        Alert.alert(
+          "Erro",
+          "A permissão de notificação foi negada nas configurações!",
+        );
+        return;
+      }
+
+      // 3. Gera o Token (com ID fixo para evitar erro de leitura do app.json)
       try {
-        const token = (
-          await Notifications.getExpoPushTokenAsync({
-            projectId: Constants.expoConfig.extra.eas.projectId,
-          })
-        ).data;
+        const tokenResponse = await Notifications.getExpoPushTokenAsync({
+          projectId: "724600a3-fa42-4ca1-8674-6941056faec4", // Seu ID do app.json
+        });
 
-        console.log("TOKEN DO DISPOSITIVO:", token);
-        Alert.alert("TOKEN PARA O SERVIDOR", token);
+        const token = tokenResponse.data;
+        console.log("TOKEN GERADO:", token);
+        Alert.alert("TOKEN PARA O SERVIDOR", token); // Alerta de sucesso
       } catch (error) {
-        Alert.alert("Erro ao gerar Token", error.message);
+        // Alerta de erro detalhado para sabermos o que o Firebase/Expo está dizendo
+        Alert.alert("ERRO NO TOKEN", error.message);
       }
     } else {
       Alert.alert(
-        "Aviso",
-        "Use um dispositivo real para receber notificações.",
+        "Erro",
+        "Use um dispositivo físico para testar notificações.",
       );
     }
   }
@@ -129,7 +150,7 @@ export default function HomeScreen() {
       <TextInput
         style={styles.input}
         secureTextEntry
-        placeholder="Senha"
+        placeholder="Senha de Presença"
         onChangeText={setSenha}
         value={senha}
         keyboardType="numeric"
