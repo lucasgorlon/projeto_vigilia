@@ -7,6 +7,9 @@ const cron = require('node-cron'); // <--- 1. Adicione esta linha (lembre de dar
 
 const app = express();
 const expo = new Expo();
+// Adicione isto para vincular seu servidor às credenciais do Google
+const serviceAccount = require('./vigilia-tecnoi-i-firebase-adminsdk-fbsvc-1dcc7e45a1.json'); 
+// Certifique-se que o nome do arquivo acima é exatamente o que está na sua pasta servidor
 
 app.use(cors());
 app.use(express.json());
