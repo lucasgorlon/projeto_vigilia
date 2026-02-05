@@ -3,22 +3,23 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { Expo } = require('expo-server-sdk');
-const cron = require('node-cron'); // <--- 1. Adicione esta linha (lembre de dar npm install node-cron)
+const cron = require('node-cron');
 
 const app = express();
-const expo = new Expo();
-// Adicione isto para vincular seu servidor às credenciais do Google
+// Configuração da instância da Expo com o Access Token
+const expo = new Expo({ accessToken: 'VWFlHH6lspasMWBrR-nAx87rBFZ2Pgns2K35Y1hn' });
+
+// Vínculo com as credenciais do Google Firebase
 const serviceAccount = require('./vigilia-tecnoi-i-firebase-adminsdk-fbsvc-7516f82cd1.json'); 
-// Certifique-se que o nome do arquivo acima é exatamente o que está na sua pasta servidor
 
 app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
-const PUSH_TOKEN = 'ExponentPushToken[Ji_dhHE8qslxTnphVIMW8V]';
+// Token atualizado após o reset de cache do Xiaomi
+const PUSH_TOKEN = 'ExponentPushToken[Nz4TsPEyc3zVi8WmEZmArx]';
 
 // --- ROTAS ---
-
 
 app.get('/', (req, res) => {
     res.status(200).send("OK");
@@ -67,28 +68,31 @@ const dispararAlertaVigilia = async () => {
     }
 
     const messages = [{
-    to: PUSH_TOKEN,
-    sound: 'default',
-    title: '🚨 VIGÍLIA TECNO I',
-    body: 'CONFIRME SUA PRESENÇA AGORA!',
-    priority: 'high',
-    channelId: 'default',
-    // Adicione estes campos extras de "força bruta":
-    _displayInForeground: true,
-    android: { // Faltavam as chaves aqui
-      priority: 'high',
-      sound: true,
-      vibrate: true,
-    }, // E a vírgula aqui
-    // Adicione estas duas linhas abaixo para forçar o comportamento no Android
-    mutableContent: true,
-    contentAvailable: true,
-}];
+        to: PUSH_TOKEN,
+        sound: 'default',
+        title: '🚨 VIGÍLIA TECNO I',
+        body: 'CONFIRME SUA PRESENÇA AGORA!',
+        priority: 'high',
+        projectId: 'fb526cf5-889b-47b5-af35-1df44d500f3d', 
+        experienceId: '@sgorlonlucas/servidor-vigilia',
+        channelId: 'vigilia-alerta',
+        
+        // Configurações específicas para forçar o Pop-up no Android/Xiaomi
+        android: {
+            priority: 'max',
+            channelId: 'vigilia-alerta', // Repita aqui para garantir      
+            vibrate: [0, 250, 250, 250], 
+            sound: true,
+            badge: true,
+        },
+        
+        _displayInForeground: true, 
+    }];
+
     try {
         const ticketChunks = await expo.sendPushNotificationsAsync(messages);
         console.log("Resposta da Expo:", JSON.stringify(ticketChunks));
         
-        // Verifica se a Expo reportou erro específico de entrega
         if (ticketChunks[0].status === 'error') {
             console.error(`Erro detalhado: ${ticketChunks[0].message}`);
             if (ticketChunks[0].details?.error === 'DeviceNotRegistered') {
@@ -108,8 +112,7 @@ app.get('/teste-alerta', (req, res) => {
 
 // --- AGENDAMENTO AUTOMÁTICO (CRON) ---
 
-// Dispara a cada 30 min (minutos 0 e 30) das 21h às 04h
-cron.schedule('0,30 12,13,14,15,16,17,3,4 * * *', () => {
+cron.schedule('0,30 12,13,14,15,16,17,18,19 * * *', () => {
     console.log("⏰ Cron: Disparando alerta de rotina (30 min)");
     dispararAlertaVigilia();
 }, {
@@ -117,7 +120,6 @@ cron.schedule('0,30 12,13,14,15,16,17,3,4 * * *', () => {
     timezone: "America/Manaus"
 });
 
-// Dispara exatamente às 05:00 (último horário)
 cron.schedule('0 5 * * *', () => {
     console.log("⏰ Cron: Disparo final das 05:00");
     dispararAlertaVigilia();
