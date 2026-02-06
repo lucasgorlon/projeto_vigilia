@@ -17,7 +17,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 // Token atualizado após o reset de cache do Xiaomi
-const PUSH_TOKEN = 'ExponentPushToken[u7TEt7GWACtyoSgMsS5QEW]';
+const PUSH_TOKEN = 'ExponentPushToken[7OjQzcHzXZi4LGhlqy4kW5]';
 
 // --- ROTAS ---
 
