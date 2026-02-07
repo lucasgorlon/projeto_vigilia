@@ -17,7 +17,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 // Token atualizado após o reset de cache do Xiaomi
-const PUSH_TOKEN = 'ExponentPushToken[7OjQzcHzXZi4LGhlqy4kW5]';
+const PUSH_TOKEN = 'ExponentPushToken[ShFMihMM5psHZj_sBILmF4]';
 
 // --- ROTAS ---
 
@@ -74,7 +74,6 @@ const dispararAlertaVigilia = async () => {
         body: 'CONFIRME SUA PRESENÇA AGORA!',
         priority: 'high',
         projectId: 'fb526cf5-889b-47b5-af35-1df44d500f3d', 
-        experienceId: '@sgorlonlucas/servidor-vigilia',
         channelId: 'vigilia-alerta',
         
         // Configurações específicas para forçar o Pop-up no Android/Xiaomi
@@ -85,8 +84,6 @@ const dispararAlertaVigilia = async () => {
             sound: true,
             badge: true,
         },
-        
-        _displayInForeground: true, 
     }];
 
     try {
